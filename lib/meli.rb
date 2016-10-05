@@ -9,16 +9,15 @@ require 'yaml'
 
 class Meli
     attr_accessor :access_token, :refresh_token
-    attr_reader :secret, :app_id, :https
+    attr_reader :secret, :app_id, :https, :app_url
 
     config = YAML.load_file(File.expand_path(File.dirname(__FILE__) + "/config.yml"))
     SDK_VERSION = config["config"]["sdk_version"]
     API_ROOT_URL = config["config"]["api_root_url"]
-    AUTH_URL = config["config"]["auth_url"]
     OAUTH_URL = config["config"]["oauth_url"]
 
     #constructor
-    def initialize(app_id = nil, secret = nil, access_token = nil, refresh_token = nil)
+    def initialize(app_url, app_id = nil, secret = nil, access_token = nil, refresh_token = nil)
         @access_token = access_token
         @refresh_token = refresh_token
         @app_id = app_id
@@ -28,12 +27,13 @@ class Meli
         @https.use_ssl = true
         @https.verify_mode = OpenSSL::SSL::VERIFY_PEER
         @https.ssl_version = :TLSv1
+        @app_url = app_url
     end
 
     #AUTH METHODS
     def auth_url(redirect_URI)
         params = {:client_id  => @app_id, :response_type => 'code', :redirect_uri => redirect_URI}
-        url = "#{AUTH_URL}?#{to_url_params(params)}"
+        url = "#{app_url}?#{to_url_params(params)}"
     end
 
     def authorize(code, redirect_URI)
